@@ -1,5 +1,3 @@
-![Logo](https://github.com/Solrikk/Invest-T /blob/main/assets/OpenCV%20-%20result/bee.jpg)
-
 <div align="center">
   <h3>
     <a href="https://github.com/Solrikk/Invest-T /blob/main/README.md">⭐English ⭐</a> |
