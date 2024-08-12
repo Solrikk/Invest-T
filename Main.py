@@ -6,7 +6,7 @@ from datetime import datetime
 import tkinter as tk
 from tkinter import font
 
-TOKEN = "ваш_tinkoff_токен"
+TOKEN = "t._токен"
 filename = "portfolio_start_value.json"
 
 def save_start_of_day_value(value):
@@ -33,14 +33,9 @@ def update_portfolio_summary():
             total_sum = 0
 
             for position in portfolio.positions:
-                instrument = client.instruments.get_instrument_by_figi(figi=position.figi).instrument
-                ticker = instrument.ticker
-                name = instrument.name
                 quantity = position.quantity.units + position.quantity.nano / 1e9
                 price = position.current_price.units + position.current_price.nano / 1e9
                 total_sum += quantity * price
-
-                text_widget.insert(tk.END, f"{name} ({ticker}): {quantity:.2f} шт. по {price:.2f} ₽\n")
 
             if start_of_day_value is None:
                 save_start_of_day_value(total_sum)
@@ -51,7 +46,7 @@ def update_portfolio_summary():
             change_display = f"+{change:.2f} ₽ ({change_percent:.2f}%)" if change >= 0 else f"{change:.2f} ₽ ({change_percent:.2f}%)"
             day_change = total_sum - start_of_day_value
 
-            text_widget.insert(tk.END, f"\nID счета: {account.id}\nНазвание: {account.name}\nОбщая сумма: {total_sum:.2f} ₽\n")
+            text_widget.insert(tk.END, f"ID счета: {account.id}\nНазвание: {account.name}\nОбщая сумма: {total_sum:.2f} ₽\n")
             if change >= 0:
                 text_widget.insert(tk.END, f"Изменение: {change_display}\n", "green")
                 text_widget.insert(tk.END, f"Заработано за день: {day_change:.2f} ₽\n\n", "green")
@@ -64,7 +59,7 @@ def update_portfolio_summary():
 
 window = tk.Tk()
 window.title("Информация о портфеле")
-window.geometry("600x500")
+window.geometry("600x450")
 window.configure(bg='#1c1c1c')
 
 title_font = font.Font(family="Arial", size=18, weight="bold")
