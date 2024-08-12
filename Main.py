@@ -6,7 +6,7 @@ from datetime import datetime
 import tkinter as tk
 from tkinter import font
 
-TOKEN = "t._token"
+TOKEN = "t._QZWkK6-v0cuxACc1eEImdbGDjtW9rdrtZcm-sni_HeQdR0KZXo-NQdfISr8c6FIZs5D3l8ZAXG0XiHKnhrMKw"
 filename = "portfolio_start_value.json"
 
 
