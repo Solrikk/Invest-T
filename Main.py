@@ -6,12 +6,17 @@ from datetime import datetime
 import tkinter as tk
 from tkinter import font
 
-TOKEN = "t._токен"
+TOKEN = "t._token"
 filename = "portfolio_start_value.json"
+
 
 def save_start_of_day_value(value):
     with open(filename, 'w') as f:
-        json.dump({"start_of_day_value": value, "date": datetime.now().strftime('%Y-%m-%d')}, f)
+        json.dump({
+            "start_of_day_value": value,
+            "date": datetime.now().strftime('%Y-%m-%d')
+        }, f)
+
 
 def load_start_of_day_value():
     if os.path.exists(filename):
@@ -20,6 +25,7 @@ def load_start_of_day_value():
             if data["date"] == datetime.now().strftime('%Y-%m-%d'):
                 return data["start_of_day_value"]
     return None
+
 
 def update_portfolio_summary():
     with Client(TOKEN) as client:
@@ -31,11 +37,14 @@ def update_portfolio_summary():
         for account in accounts:
             portfolio = client.operations.get_portfolio(account_id=account.id)
             total_sum = 0
+            positions_details = []
 
             for position in portfolio.positions:
                 quantity = position.quantity.units + position.quantity.nano / 1e9
                 price = position.current_price.units + position.current_price.nano / 1e9
-                total_sum += quantity * price
+                value = quantity * price
+                total_sum += value
+                positions_details.append((position, quantity, price, value))
 
             if start_of_day_value is None:
                 save_start_of_day_value(total_sum)
@@ -46,16 +55,25 @@ def update_portfolio_summary():
             change_display = f"+{change:.2f} ₽ ({change_percent:.2f}%)" if change >= 0 else f"{change:.2f} ₽ ({change_percent:.2f}%)"
             day_change = total_sum - start_of_day_value
 
-            text_widget.insert(tk.END, f"ID счета: {account.id}\nНазвание: {account.name}\nОбщая сумма: {total_sum:.2f} ₽\n")
+            text_widget.insert(tk.END,
+                               f"ID счета: {account.id}\nНазвание: {account.name}\nОбщая сумма: {total_sum:.2f} ₽\n")
             if change >= 0:
                 text_widget.insert(tk.END, f"Изменение: {change_display}\n", "green")
-                text_widget.insert(tk.END, f"Заработано за день: {day_change:.2f} ₽\n\n", "green")
+                text_widget.insert(tk.END, f"Заработано за день: {day_change:.2f} ₽\n", "green")
             else:
                 text_widget.insert(tk.END, f"Изменение: {change_display}\n", "red")
-                text_widget.insert(tk.END, f"Заработано за день: {day_change:.2f} ₽\n\n", "red")
+                text_widget.insert(tk.END, f"Заработано за день: {day_change:.2f} ₽\n", "red")
+
+            for position, quantity, price, value in positions_details:
+                share = (value / total_sum) * 100 if total_sum != 0 else 0
+                text_widget.insert(tk.END,
+                                   f"\nИнструмент: {position.figi} ({position.instrument_type})\nКоличество: {quantity}\nТекущая цена: {price:.2f} ₽\nЗначение: {value:.2f} ₽\nДоля в портфеле: {share:.2f}%\n")
+
+            text_widget.insert(tk.END, "\n\n")
 
         text_widget.config(state=tk.DISABLED)
         window.after(10000, update_portfolio_summary)
+
 
 window = tk.Tk()
 window.title("Информация о портфеле")
